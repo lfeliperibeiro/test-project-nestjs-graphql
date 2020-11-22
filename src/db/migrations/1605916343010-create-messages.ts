@@ -1,7 +1,59 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class createMessages1605916343010 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {}
+  private table = new Table({
+    name: 'messages',
+    columns: [
+      {
+        name: 'id',
+        type: 'integer',
+        isPrimary: true,
+        isGenerated: true,
+        generationStrategy: 'increment',
+      },
+      {
+        name: 'user_id',
+        type: 'integer',
+        isNullable: false,
+      },
+      {
+        name: 'content',
+        type: 'varchar',
+        length: '255',
+        isNullable: false,
+      },
+      {
+        name: 'created_at',
+        type: 'timestampz',
+        isNullable: false,
+        default: 'now()',
+      },
+      {
+        name: 'updated_at',
+        type: 'timestampz',
+        isNullable: false,
+        default: 'now()',
+      },
+    ],
+  });
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  private foreignKey = new TableForeignKey({
+    columnNames: ['user_id'],
+    referencedColumnNames: ['id'],
+    onDelete: 'CASCADE',
+    referencedTableName: 'users',
+  });
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.createTable(this.table);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.dropTable(this.table);
+  }
 }
